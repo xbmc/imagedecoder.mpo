@@ -1,0 +1,21 @@
+Source: kodi-imagedecoder-mpo
+Priority: extra
+Maintainer: Arne Morten Kvarving <cptspiff@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cmake,
+               kodi-addon-dev
+Standards-Version: 3.9.2
+Section: libs
+
+Package: kodi-imagedecoder-mpo
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: MPO image decoder for Kodi
+  MPO image decoder for Kodi
+
+Package: kodi-imagedecoder-mpo-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: debug symbols for MPO image decoder for Kodi
+  debug symbols for MPO image decoder for Kodi
