@@ -9,9 +9,9 @@
 #include <stdbool.h>
 
 #ifdef NDEBUG
-#define mpo_printf(args...)	((void)0)
+#define mpo_printf(...)	((void)0)
 #else
-#define mpo_printf(args...) printf(args)
+#define mpo_printf(...) printf(__VA_ARGS__)
 #endif
 
 /**
