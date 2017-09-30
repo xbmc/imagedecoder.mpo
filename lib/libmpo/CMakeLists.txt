@@ -14,7 +14,10 @@ project(libmpo C)
 message(status ${CMAKE_INCLUDE_PATH})
 
 set(LIBRARY_OUTPUT_PATH lib/${CMAKE_BUILD_TYPE})
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+if(NOT WIN32)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wextra")
+endif()
 
 
 
@@ -46,9 +49,9 @@ file(
 add_library(mpo_obj OBJECT ${source_files})
 #add_library(mpo SHARED $<TARGET_OBJECTS:mpo_obj>)
 add_library(mpo_static STATIC $<TARGET_OBJECTS:mpo_obj>)
-target_link_libraries(mpo jpeg)
+# target_link_libraries(mpo jpeg)
 set_target_properties(mpo_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-set_target_properties(mpo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+# set_target_properties(mpo PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(mpo_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(examples)
 
