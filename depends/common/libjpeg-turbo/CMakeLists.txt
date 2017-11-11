@@ -7,7 +7,7 @@ include(ExternalProject)
 externalproject_add(libjpeg-turbo
   SOURCE_DIR ${CMAKE_SOURCE_DIR}
   UPDATE_COMMAND autoreconf -vif
-  CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} AR=${CMAKE_AR} ${CMAKE_SOURCE_DIR}/configure --prefix=${OUTPUT_DIR} --with-jpeg8 --disable-shared
+  CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} AR=${CMAKE_AR} ${CMAKE_SOURCE_DIR}/configure --prefix=${OUTPUT_DIR} --with-jpeg8 --disable-shared --with-pic
   INSTALL_COMMAND ""
   BUILD_IN_SOURCE 1)
 
