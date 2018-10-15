@@ -2,8 +2,8 @@
 
 This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
 
-[![Build Status](https://travis-ci.org/notspiff/imagedecoder.mpo.svg?branch=master)](https://travis-ci.org/notspiff/imagedecoder.mpo)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/notspiff/imagedecoder.mpo?svg=true)](https://ci.appveyor.com/project/notspiff/imagedecoder-mpo)
+[![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=master)](https://travis-ci.org/xbmc/imagedecoder.mpo)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/imagedecoder.mpo?svg=true)](https://ci.appveyor.com/project/xbmc/imagedecoder-mpo)
 
 ## Build instructions
 
@@ -17,7 +17,7 @@ The following instructions assume you will have built Kodi already in the `kodi-
 suggested by the README.
 
 1. `git clone https://github.com/xbmc/xbmc.git`
-2. `git clone https://github.com/notspiff/imagedecoder.mpo.git`
+2. `git clone https://github.com/xbmc/imagedecoder.mpo.git`
 3. `cd imagedecoder.mpo && mkdir build && cd build`
 4. `cmake -DADDONS_TO_BUILD=imagedecoder.mpo -DADDON_SRC_PREFIX=../.. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../../xbmc/kodi-build/addons -DPACKAGE_ZIP=1 ../../xbmc/cmake/addons`
 5. `make`
