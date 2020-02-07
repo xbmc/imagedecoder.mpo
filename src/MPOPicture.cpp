@@ -24,7 +24,7 @@ extern "C" {
 #include "../lib/libmpo/include/libmpo/dmpo.h"
 }
 
-class MPOPicture : public kodi::addon::CInstanceImageDecoder
+class ATTRIBUTE_HIDDEN MPOPicture : public kodi::addon::CInstanceImageDecoder
 {
 public:
   MPOPicture(KODI_HANDLE instance)
@@ -100,7 +100,7 @@ private:
   std::vector<unsigned char> m_data;
 };
 
-class CMyAddon : public kodi::addon::CAddonBase
+class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() { }
