@@ -32,14 +32,14 @@ public:
   {
   }
 
-  virtual ~MPOPicture()
+  ~MPOPicture() override
   {
     if (m_allocated)
       mpo_destroy_decompress(&m_mpoinfo);
     m_allocated = false;
   }
 
-  virtual bool LoadImageFromMemory(unsigned char* buffer, unsigned int bufSize, unsigned int& width, unsigned int& height) override
+  bool LoadImageFromMemory(unsigned char* buffer, unsigned int bufSize, unsigned int& width, unsigned int& height) override
   {
     // make a copy of data as we need it at decode time.
     m_data.resize(bufSize);
@@ -59,7 +59,7 @@ public:
     return true;
   }
 
-  virtual bool Decode(unsigned char *pixels,
+  bool Decode(unsigned char *pixels,
                       unsigned int width, unsigned int height,
                       unsigned int pitch, ImageFormat format) override
   {
@@ -103,8 +103,8 @@ private:
 class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
-  CMyAddon() { }
-  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  CMyAddon() = default;
+  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
   {
     addonInstance = new MPOPicture(instance);
     return ADDON_STATUS_OK;
