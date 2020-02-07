@@ -3,7 +3,8 @@
 This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
 
 [![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=master)](https://travis-ci.org/xbmc/imagedecoder.mpo)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/imagedecoder.mpo?svg=true)](https://ci.appveyor.com/project/xbmc/imagedecoder-mpo)
+[![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.imagedecoder.mpo?branchName=Leia)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=27&branchName=Leia)
+<!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/imagedecoder.mpo?svg=true)](https://ci.appveyor.com/project/xbmc/imagedecoder-mpo) -->
 
 ## Build instructions
 
