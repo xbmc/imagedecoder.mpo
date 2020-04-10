@@ -1,21 +1,9 @@
 /*
- *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *  Copyright (C) 2005-2020 Team Kodi
+ *  https://kodi.tv
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *
- *  This Program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, see
- *  <http://www.gnu.org/licenses/>.
- *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSE.md for more information.
  */
 
 #include <kodi/addon-instance/ImageDecoder.h>
@@ -24,7 +12,7 @@ extern "C" {
 #include "../lib/libmpo/include/libmpo/dmpo.h"
 }
 
-class MPOPicture : public kodi::addon::CInstanceImageDecoder
+class ATTRIBUTE_HIDDEN MPOPicture : public kodi::addon::CInstanceImageDecoder
 {
 public:
   MPOPicture(KODI_HANDLE instance)
@@ -32,14 +20,14 @@ public:
   {
   }
 
-  virtual ~MPOPicture()
+  ~MPOPicture() override
   {
     if (m_allocated)
       mpo_destroy_decompress(&m_mpoinfo);
     m_allocated = false;
   }
 
-  virtual bool LoadImageFromMemory(unsigned char* buffer, unsigned int bufSize, unsigned int& width, unsigned int& height) override
+  bool LoadImageFromMemory(unsigned char* buffer, unsigned int bufSize, unsigned int& width, unsigned int& height) override
   {
     // make a copy of data as we need it at decode time.
     m_data.resize(bufSize);
@@ -59,7 +47,7 @@ public:
     return true;
   }
 
-  virtual bool Decode(unsigned char *pixels,
+  bool Decode(unsigned char *pixels,
                       unsigned int width, unsigned int height,
                       unsigned int pitch, ImageFormat format) override
   {
@@ -100,11 +88,11 @@ private:
   std::vector<unsigned char> m_data;
 };
 
-class CMyAddon : public kodi::addon::CAddonBase
+class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
-  CMyAddon() { }
-  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  CMyAddon() = default;
+  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
   {
     addonInstance = new MPOPicture(instance);
     return ADDON_STATUS_OK;

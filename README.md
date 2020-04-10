@@ -2,14 +2,15 @@
 
 This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
 
-[![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=master)](https://travis-ci.org/xbmc/imagedecoder.mpo)
+[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
+[![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=Leia)](https://travis-ci.org/xbmc/imagedecoder.mpo/branches)
 [![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.imagedecoder.mpo?branchName=Leia)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=27&branchName=Leia)
-<!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/imagedecoder.mpo?svg=true)](https://ci.appveyor.com/project/xbmc/imagedecoder-mpo) -->
+[![Build Status](https://jenkins.kodi.tv/view/Addons/job/xbmc/job/imagedecoder.mpo/job/Leia/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/xbmc%2Fimagedecoder.mpo/branches/)
 
 ## Build instructions
 
-When building the addon you have to use the correct branch depending on which version of Kodi you're building against. 
-For example, if you're building the `master` branch of Kodi you should checkout the `master` branch of this repository. 
+When building the addon you have to use the correct branch depending on which version of Kodi you're building against.
+If you want to build the addon to be compatible with the latest kodi `master` commit, you need to checkout the branch with the current kodi codename.
 Also make sure you follow this README from the branch in question.
 
 ### Linux
