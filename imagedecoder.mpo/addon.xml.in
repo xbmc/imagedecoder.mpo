@@ -14,7 +14,7 @@
     <summary lang="en_GB">Multi Picture Object (MPO) image decoder</summary>
     <description lang="en_GB">An addon to decode MPO (multiple picture object) files. These are used mainly for 3D cameras and the Nintendo 3DS.</description>
     <platform>@PLATFORM@</platform>
-    <license>GPL-2.0+</license>
+    <license>GPL-2.0-or-later</license>
     <source>https://github.com/xbmc/imagedecoder.mpo</source>
     <assets>
       <icon>icon.png</icon>

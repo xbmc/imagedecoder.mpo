@@ -2,7 +2,7 @@
 
 This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
 
-[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=Leia)](https://travis-ci.org/xbmc/imagedecoder.mpo/branches)
 [![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.imagedecoder.mpo?branchName=Leia)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=27&branchName=Leia)
 [![Build Status](https://jenkins.kodi.tv/view/Addons/job/xbmc/job/imagedecoder.mpo/job/Leia/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/xbmc%2Fimagedecoder.mpo/branches/)
