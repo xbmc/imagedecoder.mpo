@@ -1,11 +1,13 @@
-# imagedecoder.mpo addon for Kodi
-
-This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
-
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/xbmc/imagedecoder.mpo.svg?branch=Matrix)](https://travis-ci.org/xbmc/imagedecoder.mpo/branches)
 [![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.imagedecoder.mpo?branchName=Matrix)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=27&branchName=Matrix)
 [![Build Status](https://jenkins.kodi.tv/view/Addons/job/xbmc/job/imagedecoder.mpo/job/Matrix/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/xbmc%2Fimagedecoder.mpo/branches/)
+
+# imagedecoder.mpo addon for Kodi
+
+This is a [Kodi](http://kodi.tv) image decoder addon for MPO images.
+
+An addon to decode MPO (multiple picture object) files. These are used mainly for 3D cameras and the Nintendo 3DS.
 
 ## Build instructions
 
