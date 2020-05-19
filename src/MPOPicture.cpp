@@ -15,8 +15,8 @@ extern "C" {
 class ATTRIBUTE_HIDDEN MPOPicture : public kodi::addon::CInstanceImageDecoder
 {
 public:
-  MPOPicture(KODI_HANDLE instance)
-    : CInstanceImageDecoder(instance)
+  MPOPicture(KODI_HANDLE instance, const std::string& version)
+    : CInstanceImageDecoder(instance, version)
   {
   }
 
@@ -92,9 +92,9 @@ class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance) override
   {
-    addonInstance = new MPOPicture(instance);
+    addonInstance = new MPOPicture(instance, version);
     return ADDON_STATUS_OK;
   }
 };
