@@ -17,7 +17,7 @@
     <assets>
       <icon>icon.png</icon>
     </assets>
-    <summary lang="da_DK">Multi Picture Object (MPO) billeddekoder</summary>
+    <summary lang="da_DK">Multi Picture Object (MPO) billedafkoder</summary>
     <summary lang="de_DE">Multi Picture Object (MPO) Bilddekodierer</summary>
     <summary lang="en_GB">Multi Picture Object (MPO) image decoder</summary>
     <summary lang="ko_KR">Multi Picture Object (MPO) 이미지 디코더</summary>
