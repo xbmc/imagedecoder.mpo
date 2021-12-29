@@ -17,7 +17,7 @@ extern "C"
 class ATTR_DLL_LOCAL MPOPicture : public kodi::addon::CInstanceImageDecoder
 {
 public:
-  MPOPicture(KODI_HANDLE instance, const std::string& version);
+  MPOPicture(const kodi::addon::IInstanceInfo& instance);
   ~MPOPicture() override;
 
   bool SupportsFile(const std::string& file) override;
