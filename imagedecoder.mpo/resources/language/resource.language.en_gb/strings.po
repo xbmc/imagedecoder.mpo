@@ -23,3 +23,9 @@ msgstr ""
 msgctxt "Addon Description"
 msgid "An addon to decode MPO (multiple picture object) files. These are used mainly for 3D cameras and the Nintendo 3DS."
 msgstr ""
+
+#. Supported file extension ".mpo" and mimetype "image/mpo" description
+#: imagedecoder.raw/addon.xml.in
+msgctxt "#30100"
+msgid "An MPO file is a stereoscopic image that consists of two 2D .JPG images that are combined into one 3D image."
+msgstr ""
