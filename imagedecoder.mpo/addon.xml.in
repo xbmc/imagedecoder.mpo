@@ -25,7 +25,7 @@
     <summary lang="et_EE">Multi Picture Object (MPO) pildidekooder</summary>
     <summary lang="fi_FI">Multi Picture Object (MPO) -muotoisten kuvien luku</summary>
     <summary lang="fr_FR">Décodeur d&apos;image Multi Picture Object (MPO)</summary>
-    <summary lang="it_IT">Decoder di immagini Multi Picture Object (MPO)</summary>
+    <summary lang="it_IT">Decodificatore di immagini MPO (Multi Picture Object)</summary>
     <summary lang="ko_KR">Multi Picture Object (MPO) 이미지 디코더</summary>
     <summary lang="lv_LV">Vairāku attēlu objektu (MPO) attēlu dekodētājs</summary>
     <summary lang="nb_NO">Multi Picture Object (MPO)-bildedekoder</summary>
@@ -43,7 +43,7 @@
     <description lang="et_EE">Lisamoodul MPO (multiple picture object) failide dekodeerimiseks. Neid kasutatakse peamiselt 3D-kaamerate ja Nintendo 3DS jaoks.</description>
     <description lang="fi_FI">Lisäosa MPO (multiple picture objec) -tiedostojen purkuun. Näitä tiedostoja käytetään lähinnä 3D-kameroissa ja Nintendo 3DS -pelilaitteessa.</description>
     <description lang="fr_FR">Un addon pour décoder les fichiers MPO (multiple picture object). Ceux-ci sont principalement utilisés pour les caméras 3D et la Nintendo 3DS.</description>
-    <description lang="it_IT">Un addon per decodificare file MPO (multiple picture object). Questi sono usati principalmente per le fotocamere 3D e il Nintendo 3DS.</description>
+    <description lang="it_IT">Un Add-on per decodificare i file MPO (multiple picture object). Questi sono utilizzati principalmente per le fotocamere 3D e il Nintendo 3DS.</description>
     <description lang="ko_KR">MPO(multiple picture object) 파일을 디코딩하는 애드온입니다. 주로 3D 카메라와 Nintendo 3DS에 사용됩니다.</description>
     <description lang="lv_LV">Papildinājums MPO (vairāku attēlu objektu) failu dekodēšanai. Tos galvenokārt izmanto 3D kamerās un Nintendo 3DS.</description>
     <description lang="nb_NO">En utvidelse for å dekode MPO (multiple picture object)-filer. Disse brukes hovedsakelig til 3D-kameraer og Nintendo 3DS.</description>
