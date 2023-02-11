@@ -18,6 +18,7 @@
       <icon>icon.png</icon>
     </assets>
     <summary lang="ca_ES">Descodificador d&apos;imatge Multi Picture Object (MPO)</summary>
+    <summary lang="cs_CZ">Dekodér obrázků Multi Picture Object (MPO)</summary>
     <summary lang="da_DK">Multi Picture Object (MPO) billedafkoder</summary>
     <summary lang="de_DE">Multi Picture Object (MPO) Bilddekodierer</summary>
     <summary lang="en_GB">Multi Picture Object (MPO) image decoder</summary>
@@ -37,6 +38,7 @@
     <summary lang="sv_SE">Multi Picture Object (MPO) bildavkodare</summary>
     <summary lang="zh_CN">多图片对象（MPO）图像解码器</summary>
     <description lang="ca_ES">Un complement per descodificar fitxers MPO (objecte d&apos;imatge múltiple). S&apos;utilitzen principalment per a càmeres 3D i la Nintendo 3DS.</description>
+    <description lang="cs_CZ">Doplněk pro dekódování MPO (multiple picture object) souborů. Převážně používané pro 3D kamery a Nintendo 3DS.</description>
     <description lang="da_DK">Et add-on til at afkode MPO (multiple picture object) filer. Disse bruges hovedsageligt til 3D-kameraer og Nintendo 3DS.</description>
     <description lang="de_DE">Ein Addon zum Dekodieren von MPO-Dateien (Multiple Picture Object). Diese werden hauptsächlich für 3D-Kameras und den Nintendo 3DS verwendet.</description>
     <description lang="en_GB">An addon to decode MPO (multiple picture object) files. These are used mainly for 3D cameras and the Nintendo 3DS.</description>
