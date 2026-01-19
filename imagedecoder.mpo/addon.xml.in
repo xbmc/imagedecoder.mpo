@@ -23,6 +23,7 @@
       <icon>icon.png</icon>
     </assets>
     <summary lang="af_ZA">Multi Picture Object (MPO) beeld dekodeerder</summary>
+    <summary lang="bs_BA">Dekoder slika s više slikovnih objekata (MPO)</summary>
     <summary lang="ca_ES">Descodificador d&apos;imatge Multi Picture Object (MPO)</summary>
     <summary lang="cs_CZ">Dekodér obrázků Multi Picture Object (MPO)</summary>
     <summary lang="da_DK">Multi Picture Object (MPO) billedafkoder</summary>
@@ -46,6 +47,7 @@
     <summary lang="sv_SE">Multi Picture Object (MPO) bildavkodare</summary>
     <summary lang="zh_CN">多图片对象（MPO）图像解码器</summary>
     <description lang="af_ZA">&apos;n Byvoegsel om MPO (Multiple Picture Object) lêers te dekodeer. Hierdie word hoofsaaklik gebruik vir 3D kameras en die Nintendo 3DS.</description>
+    <description lang="bs_BA">Dodatak za dekodiranje MPO (višestruki slikovni objekti) datoteka. Koriste se uglavnom za 3D kamere i Nintendo 3DS.</description>
     <description lang="ca_ES">Un complement per descodificar fitxers MPO (objecte d&apos;imatge múltiple). S&apos;utilitzen principalment per a càmeres 3D i la Nintendo 3DS.</description>
     <description lang="cs_CZ">Doplněk pro dekódování MPO (multiple picture object) souborů. Převážně používané pro 3D kamery a Nintendo 3DS.</description>
     <description lang="da_DK">Et add-on til at afkode MPO (multiple picture object) filer. Disse bruges hovedsageligt til 3D-kameraer og Nintendo 3DS.</description>
