@@ -25,7 +25,7 @@
     <summary lang="af_ZA">Multi Picture Object (MPO) beeld dekodeerder</summary>
     <summary lang="bs_BA">Dekoder slika s više slikovnih objekata (MPO)</summary>
     <summary lang="ca_ES">Descodificador d&apos;imatge Multi Picture Object (MPO)</summary>
-    <summary lang="cs_CZ">Dekodér obrázků Multi Picture Object (MPO)</summary>
+    <summary lang="cs_CZ">Dekodér obrázků ve formátu Multi Picture Object (MPO)</summary>
     <summary lang="da_DK">Multi Picture Object (MPO) billedafkoder</summary>
     <summary lang="de_DE">Multi Picture Object (MPO) Bilddekodierer</summary>
     <summary lang="en_GB">Multi Picture Object (MPO) image decoder</summary>
@@ -49,7 +49,7 @@
     <description lang="af_ZA">&apos;n Byvoegsel om MPO (Multiple Picture Object) lêers te dekodeer. Hierdie word hoofsaaklik gebruik vir 3D kameras en die Nintendo 3DS.</description>
     <description lang="bs_BA">Dodatak za dekodiranje MPO (višestruki slikovni objekti) datoteka. Koriste se uglavnom za 3D kamere i Nintendo 3DS.</description>
     <description lang="ca_ES">Un complement per descodificar fitxers MPO (objecte d&apos;imatge múltiple). S&apos;utilitzen principalment per a càmeres 3D i la Nintendo 3DS.</description>
-    <description lang="cs_CZ">Doplněk pro dekódování MPO (multiple picture object) souborů. Převážně používané pro 3D kamery a Nintendo 3DS.</description>
+    <description lang="cs_CZ">Doplněk pro dekódování souborů MPO (Multiple Picture Object). Používají se hlavně u 3D fotoaparátů a Nintendo 3DS.</description>
     <description lang="da_DK">Et add-on til at afkode MPO (multiple picture object) filer. Disse bruges hovedsageligt til 3D-kameraer og Nintendo 3DS.</description>
     <description lang="de_DE">Ein Addon zum Dekodieren von MPO-Dateien (Multiple Picture Object). Diese werden hauptsächlich für 3D-Kameras und den Nintendo 3DS verwendet.</description>
     <description lang="en_GB">An addon to decode MPO (multiple picture object) files. These are used mainly for 3D cameras and the Nintendo 3DS.</description>
