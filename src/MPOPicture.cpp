@@ -160,6 +160,15 @@ bool MPOPicture::Decode(uint8_t* pixels,
                         unsigned int pitch,
                         ADDON_IMG_FMT format)
 {
+  // The copy loop below writes B,G,R and only fills the fourth byte for
+  // A8R8G8B8, so that is the only format implemented here.
+  if (format != ADDON_IMG_FMT_A8R8G8B8)
+  {
+    kodi::Log(ADDON_LOG_ERROR, "%s: Unsupported target format (%d)", __func__,
+              static_cast<int>(format));
+    return false;
+  }
+
   size_t image = 0;
   while (image < m_images)
   {
