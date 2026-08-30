@@ -166,6 +166,22 @@ bool MPOPicture::Decode(uint8_t* pixels,
     mpo_start_decompress(&m_mpoinfo);
     JSAMPARRAY buffer;
     int row_stride = m_mpoinfo.cinfo.cinfo.output_width * m_mpoinfo.cinfo.cinfo.output_components;
+
+    // Mirrors the destination offset in the loop below exactly - the integer
+    // division must be applied in the same order or an odd m_width
+    // underestimates the reach for images after the first.
+    const size_t tileOffset = image * m_width / 2 * 4;
+    if (m_height == 0 || row_stride <= 0 ||
+        static_cast<size_t>(m_height - 1) * pitch + tileOffset +
+                static_cast<size_t>(row_stride / 3) * 4 >
+            pixelBufferSize)
+    {
+      kodi::Log(ADDON_LOG_ERROR, "%s: Output buffer too small for image %zu of %ux%u at pitch %u",
+                __func__, image, m_width, m_height, pitch);
+      mpo_finish_decompress(&m_mpoinfo);
+      return false;
+    }
+
     size_t lines = 0;
     while (lines < m_height)
     {
