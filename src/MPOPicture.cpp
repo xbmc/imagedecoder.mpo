@@ -154,6 +154,7 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
 }
 
 bool MPOPicture::Decode(uint8_t* pixels,
+                        size_t pixelBufferSize,
                         unsigned int width,
                         unsigned int height,
                         unsigned int pitch,
