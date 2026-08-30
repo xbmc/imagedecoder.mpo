@@ -20,21 +20,29 @@ long mpf_tell(MPFbuffer_ptr b)
 
 void mpf_seek(MPFbuffer_ptr b,long offset, int from)
 {
-    if(from==SEEK_CUR)b->_cur+=offset;
-    else if(from==SEEK_SET)b->_cur=offset;
-    else if(from==SEEK_END)b->_cur=b->_size-1+offset;
+    /* Kodi downstream: offsets come from the file, so clamp rather than trust. */
+    long target;
+    if(from==SEEK_CUR)target=b->_cur+offset;
+    else if(from==SEEK_SET)target=offset;
+    else if(from==SEEK_END)target=b->_size-1+offset;
+    else return;
+    if(target<0)target=0;
+    if(target>b->_size)target=b->_size;
+    b->_cur=target;
 }
 
 unsigned int mpf_getbyte (MPFbuffer_ptr b)
 /* Read next byte */
 {
-    assert(b->_cur < b->_size);
+    /* Kodi downstream: this assert was the only bounds check on every read in
+       the MP parser, and NDEBUG removes it from the builds we ship. */
+    if(b->_cur < 0 || b->_cur >= b->_size)return 0;
     return b->buffer[b->_cur++];
 }
 
 void mpf_dc_rewindc(MPFbuffer_ptr b)
 {
-    b->_cur--;
+    if(b->_cur>0)b->_cur--;
 }
 
 uint16_t mpf_getint16 (MPFbuffer_ptr b, int swapEndian)
