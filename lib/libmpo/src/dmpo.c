@@ -122,8 +122,34 @@ bool mpo_read_header(mpo_decompress_struct *mpoinfo) {
 
         res = jpeg_read_header((j_decompress_ptr) &mpoinfo->cinfo, TRUE) != 0;
         int nbImages = mpoinfo->APP02->numberOfImages;
-        if(nbImages > 1)
-            mpoinfo->APP02 = realloc(mpoinfo->APP02,nbImages * (sizeof *mpoinfo->APP02));
+        /* Kodi downstream: numberOfImages comes from the file, and
+           mpo_destroy_decompress() walks every entry calling free() on its
+           MPentry. realloc() does not zero what it adds, and only entry 0 has
+           been parsed at this point, so the rest must be cleared or the
+           teardown frees uninitialised pointers. */
+        if(nbImages > 1 && nbImages <= MPO_MAX_IMAGES)
+        {
+            MPExt_Data *grown = realloc(mpoinfo->APP02,nbImages * (sizeof *mpoinfo->APP02));
+            if(grown)
+            {
+                memset(grown + 1, 0, (nbImages - 1) * (sizeof *grown));
+                mpoinfo->APP02 = grown;
+            }
+            else
+            {
+                /* Only one entry is allocated, and mpo_destroy_decompress()
+                   walks numberOfImages of them, so it has to agree. */
+                mpoinfo->APP02->numberOfImages = 1;
+                res = 0;
+            }
+        }
+        else if(nbImages > MPO_MAX_IMAGES)
+        {
+            mpoinfo->APP02->numberOfImages = 1;
+            res = 0;
+        }
+        else if(nbImages < 1)
+            mpoinfo->APP02->numberOfImages = 1;
 
     }
     return res;

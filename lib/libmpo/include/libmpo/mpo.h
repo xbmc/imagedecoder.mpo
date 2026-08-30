@@ -46,6 +46,9 @@ typedef struct {MPFLong numerator; MPFLong denominator;} MPFRational;
 typedef unsigned char	MPFUndefined;     /* 1 byte  */
 typedef struct {MPFSLong numerator; MPFSLong denominator;} MPFSRational;
 
+/* Kodi downstream: a sanity ceiling on the file-supplied image count. */
+#define MPO_MAX_IMAGES 64
+
 typedef struct
 {
     MPFByte * buffer;
