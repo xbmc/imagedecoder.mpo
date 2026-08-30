@@ -1,2 +1,7 @@
 libmpo source from https://github.com/Lectem/libmpo
 Sync to 63ada10 (14 Aug 2017)
+
+Locally modified, not present upstream (upstream's last code commit is 2017):
+  src/mpo.c - mpf_getbyte(), mpf_seek() and mpf_dc_rewindc() bounds-check the
+  cursor. The only check was an assert() in mpf_getbyte(), which NDEBUG removes
+  from release builds, leaving every read in the MP parser unchecked.
