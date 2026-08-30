@@ -10,8 +10,29 @@
 
 #include "../lib/TinyEXIF/TinyEXIF.h"
 
+#include <csetjmp>
 #include <iostream>
 #include <kodi/Filesystem.h>
+
+namespace
+{
+
+// libjpeg's default error_exit calls exit(), and libmpo installs it via
+// jpeg_std_error() without overriding it, so a malformed file terminates Kodi
+// rather than failing the decode. mpo_decompress_error_exit() can only replace
+// the function pointer, not attach state to it, so the jump target is
+// thread-local; each decoder instance is driven from one thread at a time.
+thread_local std::jmp_buf s_jpegEscape;
+
+void MpoFatalError(j_common_ptr cinfo)
+{
+  char message[JMSG_LENGTH_MAX] = {};
+  (*cinfo->err->format_message)(cinfo, message);
+  kodi::Log(ADDON_LOG_ERROR, "libjpeg: %s", message);
+  std::longjmp(s_jpegEscape, 1);
+}
+
+} // namespace
 
 MPOPicture::MPOPicture(const kodi::addon::IInstanceInfo& instance)
   : CInstanceImageDecoder(instance)
@@ -36,8 +57,15 @@ bool MPOPicture::SupportsFile(const std::string& file)
 
   mpo_decompress_struct mpoinfo;
   mpo_create_decompress(&mpoinfo);
+  mpo_decompress_error_exit(&mpoinfo, MpoFatalError);
+  if (setjmp(s_jpegEscape))
+  {
+    mpo_destroy_decompress(&mpoinfo);
+    return false;
+  }
+
   mpo_mem_src(&mpoinfo, buffer.data(), buffer.size());
-  bool ret = mpo_read_header(&mpoinfo);
+  const bool ret = mpo_read_header(&mpoinfo);
   mpo_destroy_decompress(&mpoinfo);
   return ret;
 }
@@ -139,6 +167,13 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
   m_data.resize(bufSize);
   std::copy(buffer, buffer + bufSize, m_data.begin());
   mpo_create_decompress(&m_mpoinfo);
+  mpo_decompress_error_exit(&m_mpoinfo, MpoFatalError);
+  if (setjmp(s_jpegEscape))
+  {
+    mpo_destroy_decompress(&m_mpoinfo);
+    return false;
+  }
+
   mpo_mem_src(&m_mpoinfo, m_data.data(), m_data.size());
   if (!mpo_read_header(&m_mpoinfo))
   {
@@ -168,6 +203,9 @@ bool MPOPicture::Decode(uint8_t* pixels,
               static_cast<int>(format));
     return false;
   }
+
+  if (setjmp(s_jpegEscape))
+    return false;
 
   size_t image = 0;
   while (image < m_images)
