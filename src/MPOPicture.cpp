@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2005-2026 Team Kodi
+ *  Copyright (C) 2005-2021 Team Kodi
  *  https://kodi.tv
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
@@ -11,10 +11,8 @@
 #include "../lib/TinyEXIF/TinyEXIF.h"
 
 #include <csetjmp>
+#include <cstdlib>
 #include <iostream>
-#include <algorithm>
-#include <cstring>
-#include <vector>
 #include <kodi/Filesystem.h>
 
 namespace
@@ -179,8 +177,8 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
   }
   m_allocated = true;
   m_images = mpo_get_number_images(&m_mpoinfo);
-
-  // Zwinge das Ausgabebild fest auf 1920x1080 (Full HD Half-SBS)
+  
+  // Always advertise fixed 1080p canvas (1920x1080) for Half-SBS output
   m_width = width = 1920;
   m_height = height = 1080;
 
@@ -201,99 +199,79 @@ bool MPOPicture::Decode(uint8_t* pixels,
     return false;
   }
 
-  if (setjmp(s_jpegEscape))
-    return false;
+  const int targetH = 1080;
+  const int eyeTargetW = 960;
 
-  // Initialisiere das Ziel-Canvas komplett mit Schwarz (0x00)
-  std::memset(pixels, 0, pixelBufferSize);
+  // Fix #2: Fill background with OPAQUE black (Alpha = 0xFF)
+  uint32_t* bgPixels = reinterpret_cast<uint32_t*>(pixels);
+  const size_t totalPixels = pixelBufferSize / sizeof(uint32_t);
+  for (size_t i = 0; i < totalPixels; ++i)
+  {
+    bgPixels[i] = 0xFF000000;
+  }
+
+  // Fix #1: Force RGB output mode to avoid CMYK 4-component overflow
+  m_mpoinfo.cinfo.cinfo.out_color_space = JCS_RGB;
 
   size_t image = 0;
-  while (image < m_images && image < 2) // Wir verarbeiten max. 2 Augen (3D)
+  while (image < m_images && image < 2)
   {
+    if (setjmp(s_jpegEscape))
+      return false;
+
     mpo_start_decompress(&m_mpoinfo);
     
-    int srcW = m_mpoinfo.cinfo.cinfo.output_width;
-    int srcH = m_mpoinfo.cinfo.cinfo.output_height;
-    int row_stride = srcW * m_mpoinfo.cinfo.cinfo.output_components;
+    const int srcW = m_mpoinfo.cinfo.cinfo.output_width;
+    const int srcH = m_mpoinfo.cinfo.cinfo.output_height;
 
-    // Lese alle Scanlines des Quellbildes in einen temporären Puffer
-    std::vector<uint8_t> eyeBuffer(srcW * srcH * 3);
-    size_t lines = 0;
-    while (lines < static_cast<size_t>(srcH))
+    if (srcW <= 0 || srcH <= 0)
     {
-      JSAMPARRAY buffer = (*m_mpoinfo.cinfo.cinfo.mem->alloc_sarray)(
-          (j_common_ptr)&m_mpoinfo.cinfo, JPOOL_IMAGE, row_stride, srcH);
-      size_t nl = mpo_read_scanlines(&m_mpoinfo, buffer, srcH - lines);
-      for (size_t l = 0; l < nl; ++l)
-      {
-        std::memcpy(eyeBuffer.data() + (lines + l) * row_stride, buffer[l], row_stride);
-      }
-      lines += nl;
+      mpo_finish_decompress(&m_mpoinfo);
+      return false;
     }
+
+    // Fix #3: Use malloc/free to remain safe with longjmp (no vector destructor skip)
+    uint8_t* eyeBuffer = static_cast<uint8_t*>(std::malloc(static_cast<size_t>(srcW) * srcH * 3));
+    if (!eyeBuffer)
+    {
+      mpo_finish_decompress(&m_mpoinfo);
+      return false;
+    }
+
+    int lines = 0;
+    while (lines < srcH)
+    {
+      JSAMPROW row_pointer = eyeBuffer + (lines * srcW * 3);
+      if (mpo_read_scanlines(&m_mpoinfo, &row_pointer, 1) != 1)
+      {
+        std::free(eyeBuffer);
+        mpo_finish_decompress(&m_mpoinfo);
+        return false;
+      }
+      lines++;
+    }
+
     mpo_finish_decompress(&m_mpoinfo);
 
-    // Berechne Half-SBS Stauchung & Zentrierung (Pillarbarmatching)
-    float scaleY = static_cast<float>(height) / srcH;
-    int propWidth = static_cast<int>(srcW * scaleY);
-    int targetEyeWidth = std::min(propWidth / 2, static_cast<int>(width / 2));
-    int marginX = (width / 2 - targetEyeWidth) / 2;
-    int offsetX = (image == 1 ? (width / 2) : 0) + marginX;
+    const float xRatio = static_cast<float>(srcW) / static_cast<float>(eyeTargetW);
+    const float yRatio = static_cast<float>(srcH) / static_cast<float>(targetH);
+    const int xOffset = (image == 0) ? 0 : eyeTargetW;
 
-    // Bilineares Downsampling direkt in Kodis Zielpuffer (BGRA / A8R8G8B8)
-    for (unsigned int y = 0; y < height; ++y)
+    for (int dy = 0; dy < targetH; ++dy)
     {
-      float srcY = y / scaleY;
+      float srcY = dy * yRatio;
       int y0 = static_cast<int>(srcY);
-      int y1 = std::min(y0 + 1, srcH - 1);
-      float dy = srcY - y0;
+      int y1 = (y0 + 1 < srcH) ? y0 + 1 : y0;
+      float yDiff = srcY - y0;
 
-      for (int x = 0; x < targetEyeWidth; ++x)
+      uint8_t* dstRow = pixels + dy * pitch + xOffset * 4;
+
+      for (int dx = 0; dx < eyeTargetW; ++dx)
       {
-        float srcX = x * (static_cast<float>(srcW) / targetEyeWidth);
+        float srcX = dx * xRatio;
         int x0 = static_cast<int>(srcX);
-        int x1 = std::min(x0 + 1, srcW - 1);
-        float dx = srcX - x0;
+        int x1 = (x0 + 1 < srcW) ? x0 + 1 : x0;
+        float xDiff = srcX - x0;
 
-        int dstX = offsetX + x;
-        uint8_t* dst = pixels + y * pitch + dstX * 4;
-
-        // Sample RGB Kanäle aus dem Quell-Eye
-        for (int c = 0; c < 3; ++c)
-        {
-          float p00 = eyeBuffer[(y0 * srcW + x0) * 3 + c];
-          float p10 = eyeBuffer[(y0 * srcW + x1) * 3 + c];
-          float p01 = eyeBuffer[(y1 * srcW + x0) * 3 + c];
-          float p11 = eyeBuffer[(y1 * srcW + x1) * 3 + c];
-
-          float top = p00 + dx * (p10 - p00);
-          float bottom = p01 + dx * (p11 - p01);
-          float val = top + dy * (bottom - top);
-
-          // Kodis A8R8G8B8 erwartet B-G-R-A Reihenfolge im Speicher
-          if (c == 0) dst[2] = static_cast<uint8_t>(val); // R
-          if (c == 1) dst[1] = static_cast<uint8_t>(val); // G
-          if (c == 2) dst[0] = static_cast<uint8_t>(val); // B
-        }
-        dst[3] = 0xff; // Alpha voll deckend
-      }
-    }
-
-    ++image;
-  }
-
-  return true;
-}
-
-class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
-{
-public:
-  CMyAddon() = default;
-  ADDON_STATUS CreateInstance(const kodi::addon::IInstanceInfo& instance,
-                              KODI_ADDON_INSTANCE_HDL& hdl) override
-  {
-    hdl = new MPOPicture(instance);
-    return ADDON_STATUS_OK;
-  }
-};
-
-ADDONCREATOR(CMyAddon)
+        const uint8_t* p00 = eyeBuffer + (y0 * srcW + x0) * 3;
+        const uint8_t* p10 = eyeBuffer + (
