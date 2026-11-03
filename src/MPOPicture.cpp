@@ -18,6 +18,11 @@
 namespace
 {
 
+// libjpeg's default error_exit calls exit(), and libmpo installs it via
+// jpeg_std_error() without overriding it, so a malformed file terminates Kodi
+// rather than failing the decode. mpo_decompress_error_exit() can only replace
+// the function pointer, not attach state to it, so the jump target is
+// thread-local; each decoder instance is driven from one thread at a time.
 thread_local std::jmp_buf s_jpegEscape;
 
 void MpoFatalError(j_common_ptr cinfo)
@@ -116,7 +121,7 @@ bool MPOPicture::ReadTag(const std::string& file, kodi::addon::ImageDecoderInfoT
     tm.tm_hour = atoi(dateTime.substr(11, 2).c_str());
     tm.tm_min = atoi(dateTime.substr(14, 2).c_str());
     tm.tm_sec = atoi(dateTime.substr(17, 2).c_str());
-    tm.tm_isdst = -1;
+    tm.tm_isdst = -1; // Assume local daylight setting per date/time
     tag.SetTimeCreated(mktime(&tm));
   }
   tag.SetDistance(imageEXIF.SubjectDistance);
@@ -159,6 +164,7 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
                                      unsigned int& width,
                                      unsigned int& height)
 {
+  // make a copy of data as we need it at decode time.
   m_data.resize(bufSize);
   std::copy(buffer, buffer + bufSize, m_data.begin());
   mpo_create_decompress(&m_mpoinfo);
@@ -201,6 +207,7 @@ bool MPOPicture::Decode(uint8_t* pixels,
   const int targetH = 1080;
   const int eyeTargetW = 960;
 
+  // Fix #2: Fill background with OPAQUE black (Alpha = 0xFF)
   uint32_t* bgPixels = reinterpret_cast<uint32_t*>(pixels);
   const size_t totalPixels = pixelBufferSize / sizeof(uint32_t);
   for (size_t i = 0; i < totalPixels; ++i)
@@ -208,6 +215,7 @@ bool MPOPicture::Decode(uint8_t* pixels,
     bgPixels[i] = 0xFF000000;
   }
 
+  // Fix #1: Force RGB output mode to avoid CMYK 4-component overflow
   m_mpoinfo.cinfo.cinfo.out_color_space = JCS_RGB;
 
   size_t image = 0;
@@ -227,6 +235,7 @@ bool MPOPicture::Decode(uint8_t* pixels,
       return false;
     }
 
+    // Fix #3: Use malloc/free to remain safe with longjmp (no vector destructor skip)
     uint8_t* eyeBuffer = static_cast<uint8_t*>(std::malloc(static_cast<size_t>(srcW) * srcH * 3));
     if (!eyeBuffer)
     {
