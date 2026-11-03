@@ -177,8 +177,7 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
   }
   m_allocated = true;
   m_images = mpo_get_number_images(&m_mpoinfo);
-  
-  // Always advertise fixed 1080p canvas (1920x1080) for Half-SBS output
+
   m_width = width = 1920;
   m_height = height = 1080;
 
@@ -202,7 +201,6 @@ bool MPOPicture::Decode(uint8_t* pixels,
   const int targetH = 1080;
   const int eyeTargetW = 960;
 
-  // Fix #2: Fill background with OPAQUE black (Alpha = 0xFF)
   uint32_t* bgPixels = reinterpret_cast<uint32_t*>(pixels);
   const size_t totalPixels = pixelBufferSize / sizeof(uint32_t);
   for (size_t i = 0; i < totalPixels; ++i)
@@ -210,7 +208,6 @@ bool MPOPicture::Decode(uint8_t* pixels,
     bgPixels[i] = 0xFF000000;
   }
 
-  // Fix #1: Force RGB output mode to avoid CMYK 4-component overflow
   m_mpoinfo.cinfo.cinfo.out_color_space = JCS_RGB;
 
   size_t image = 0;
@@ -220,7 +217,7 @@ bool MPOPicture::Decode(uint8_t* pixels,
       return false;
 
     mpo_start_decompress(&m_mpoinfo);
-    
+
     const int srcW = m_mpoinfo.cinfo.cinfo.output_width;
     const int srcH = m_mpoinfo.cinfo.cinfo.output_height;
 
@@ -230,7 +227,6 @@ bool MPOPicture::Decode(uint8_t* pixels,
       return false;
     }
 
-    // Fix #3: Use malloc/free to remain safe with longjmp (no vector destructor skip)
     uint8_t* eyeBuffer = static_cast<uint8_t*>(std::malloc(static_cast<size_t>(srcW) * srcH * 3));
     if (!eyeBuffer)
     {
@@ -274,4 +270,39 @@ bool MPOPicture::Decode(uint8_t* pixels,
         float xDiff = srcX - x0;
 
         const uint8_t* p00 = eyeBuffer + (y0 * srcW + x0) * 3;
-        const uint8_t* p10 = eyeBuffer + (
+        const uint8_t* p10 = eyeBuffer + (y0 * srcW + x1) * 3;
+        const uint8_t* p01 = eyeBuffer + (y1 * srcW + x0) * 3;
+        const uint8_t* p11 = eyeBuffer + (y1 * srcW + x1) * 3;
+
+        for (int c = 0; c < 3; ++c)
+        {
+          float top = p00[c] * (1.0f - xDiff) + p10[c] * xDiff;
+          float bottom = p01[c] * (1.0f - xDiff) + p11[c] * xDiff;
+          float val = top * (1.0f - yDiff) + bottom * yDiff;
+
+          dstRow[dx * 4 + (2 - c)] = static_cast<uint8_t>(val);
+        }
+        dstRow[dx * 4 + 3] = 0xFF;
+      }
+    }
+
+    std::free(eyeBuffer);
+    ++image;
+  }
+
+  return true;
+}
+
+class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
+{
+public:
+  CMyAddon() = default;
+  ADDON_STATUS CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                              KODI_ADDON_INSTANCE_HDL& hdl) override
+  {
+    hdl = new MPOPicture(instance);
+    return ADDON_STATUS_OK;
+  }
+};
+
+ADDONCREATOR(CMyAddon)
