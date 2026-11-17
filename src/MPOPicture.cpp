@@ -11,6 +11,7 @@
 #include "../lib/TinyEXIF/TinyEXIF.h"
 
 #include <csetjmp>
+#include <cstdlib>
 #include <iostream>
 #include <kodi/Filesystem.h>
 
@@ -182,8 +183,9 @@ bool MPOPicture::LoadImageFromMemory(const std::string& mimetype,
   }
   m_allocated = true;
   m_images = mpo_get_number_images(&m_mpoinfo);
-  m_width = width = m_mpoinfo.cinfo.cinfo.image_width * m_images;
-  m_height = height = m_mpoinfo.cinfo.cinfo.image_height;
+
+  m_width = width = 1920;
+  m_height = height = 1080;
 
   return true;
 }
@@ -195,8 +197,6 @@ bool MPOPicture::Decode(uint8_t* pixels,
                         unsigned int pitch,
                         ADDON_IMG_FMT format)
 {
-  // The copy loop below writes B,G,R and only fills the fourth byte for
-  // A8R8G8B8, so that is the only format implemented here.
   if (format != ADDON_IMG_FMT_A8R8G8B8)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Unsupported target format (%d)", __func__,
@@ -204,52 +204,98 @@ bool MPOPicture::Decode(uint8_t* pixels,
     return false;
   }
 
-  if (setjmp(s_jpegEscape))
-    return false;
+  const int targetH = 1080;
+  const int eyeTargetW = 960;
+
+  // Fix #2: Fill background with OPAQUE black (Alpha = 0xFF)
+  uint32_t* bgPixels = reinterpret_cast<uint32_t*>(pixels);
+  const size_t totalPixels = pixelBufferSize / sizeof(uint32_t);
+  for (size_t i = 0; i < totalPixels; ++i)
+  {
+    bgPixels[i] = 0xFF000000;
+  }
+
+  // Fix #1: Force RGB output mode to avoid CMYK 4-component overflow
+  m_mpoinfo.cinfo.cinfo.out_color_space = JCS_RGB;
 
   size_t image = 0;
-  while (image < m_images)
+  while (image < m_images && image < 2)
   {
-    mpo_start_decompress(&m_mpoinfo);
-    JSAMPARRAY buffer;
-    int row_stride = m_mpoinfo.cinfo.cinfo.output_width * m_mpoinfo.cinfo.cinfo.output_components;
+    if (setjmp(s_jpegEscape))
+      return false;
 
-    // Mirrors the destination offset in the loop below exactly - the integer
-    // division must be applied in the same order or an odd m_width
-    // underestimates the reach for images after the first.
-    const size_t tileOffset = image * m_width / 2 * 4;
-    if (m_height == 0 || row_stride <= 0 ||
-        static_cast<size_t>(m_height - 1) * pitch + tileOffset +
-                static_cast<size_t>(row_stride / 3) * 4 >
-            pixelBufferSize)
+    mpo_start_decompress(&m_mpoinfo);
+
+    const int srcW = m_mpoinfo.cinfo.cinfo.output_width;
+    const int srcH = m_mpoinfo.cinfo.cinfo.output_height;
+
+    if (srcW <= 0 || srcH <= 0)
     {
-      kodi::Log(ADDON_LOG_ERROR, "%s: Output buffer too small for image %zu of %ux%u at pitch %u",
-                __func__, image, m_width, m_height, pitch);
       mpo_finish_decompress(&m_mpoinfo);
       return false;
     }
 
-    size_t lines = 0;
-    while (lines < m_height)
+    // Fix #3: Use malloc/free to remain safe with longjmp (no vector destructor skip)
+    uint8_t* eyeBuffer = static_cast<uint8_t*>(std::malloc(static_cast<size_t>(srcW) * srcH * 3));
+    if (!eyeBuffer)
     {
-      buffer = (*m_mpoinfo.cinfo.cinfo.mem->alloc_sarray)((j_common_ptr)&m_mpoinfo.cinfo,
-                                                          JPOOL_IMAGE, row_stride, m_height);
-      size_t nl = mpo_read_scanlines(&m_mpoinfo, buffer, m_height - lines);
-      for (size_t line = 0; line < nl; ++line)
-      {
-        unsigned char* dst = pixels + (line + lines) * pitch + image * m_width / 2 * 4;
-        for (size_t i = 0; i < row_stride; i += 3)
-        {
-          *dst++ = buffer[line][i + 2];
-          *dst++ = buffer[line][i + 1];
-          *dst++ = buffer[line][i];
-          if (format == ADDON_IMG_FMT_A8R8G8B8)
-            *dst++ = 0xff;
-        }
-      }
-      lines += nl;
+      mpo_finish_decompress(&m_mpoinfo);
+      return false;
     }
+
+    int lines = 0;
+    while (lines < srcH)
+    {
+      JSAMPROW row_pointer = eyeBuffer + (lines * srcW * 3);
+      if (mpo_read_scanlines(&m_mpoinfo, &row_pointer, 1) != 1)
+      {
+        std::free(eyeBuffer);
+        mpo_finish_decompress(&m_mpoinfo);
+        return false;
+      }
+      lines++;
+    }
+
     mpo_finish_decompress(&m_mpoinfo);
+
+    const float xRatio = static_cast<float>(srcW) / static_cast<float>(eyeTargetW);
+    const float yRatio = static_cast<float>(srcH) / static_cast<float>(targetH);
+    const int xOffset = (image == 0) ? 0 : eyeTargetW;
+
+    for (int dy = 0; dy < targetH; ++dy)
+    {
+      float srcY = dy * yRatio;
+      int y0 = static_cast<int>(srcY);
+      int y1 = (y0 + 1 < srcH) ? y0 + 1 : y0;
+      float yDiff = srcY - y0;
+
+      uint8_t* dstRow = pixels + dy * pitch + xOffset * 4;
+
+      for (int dx = 0; dx < eyeTargetW; ++dx)
+      {
+        float srcX = dx * xRatio;
+        int x0 = static_cast<int>(srcX);
+        int x1 = (x0 + 1 < srcW) ? x0 + 1 : x0;
+        float xDiff = srcX - x0;
+
+        const uint8_t* p00 = eyeBuffer + (y0 * srcW + x0) * 3;
+        const uint8_t* p10 = eyeBuffer + (y0 * srcW + x1) * 3;
+        const uint8_t* p01 = eyeBuffer + (y1 * srcW + x0) * 3;
+        const uint8_t* p11 = eyeBuffer + (y1 * srcW + x1) * 3;
+
+        for (int c = 0; c < 3; ++c)
+        {
+          float top = p00[c] * (1.0f - xDiff) + p10[c] * xDiff;
+          float bottom = p01[c] * (1.0f - xDiff) + p11[c] * xDiff;
+          float val = top * (1.0f - yDiff) + bottom * yDiff;
+
+          dstRow[dx * 4 + (2 - c)] = static_cast<uint8_t>(val);
+        }
+        dstRow[dx * 4 + 3] = 0xFF;
+      }
+    }
+
+    std::free(eyeBuffer);
     ++image;
   }
 
